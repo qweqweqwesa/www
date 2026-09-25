@@ -1,0 +1,68 @@
+name: Build unsigned iOS Runner
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check environment
+        run: bash runner/build_ipa.sh environment
+
+      - name: Download Godot 4.6 stable
+        run: bash runner/build_ipa.sh download
+
+      - name: Install iOS export template
+        run: bash runner/build_ipa.sh templates
+
+      - name: Build native iOS Files picker plugin
+        run: bash runner/build_ipa.sh build_file_picker_plugin
+
+      - name: Validate Godot project
+        run: bash runner/build_ipa.sh validate
+
+      - name: Export Xcode project
+        run: bash runner/build_ipa.sh export_ios
+
+      - name: Build unsigned arm64 iPhone app
+        run: bash runner/build_ipa.sh build_app
+
+      - name: Verify app
+        run: bash runner/build_ipa.sh verify_app
+
+      - name: Package and verify unsigned IPA
+        run: bash runner/build_ipa.sh package_ipa
+
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Runner-Unsigned-IPA
+          path: dist/Runner.ipa
+          if-no-files-found: error
+          compression-level: 0
+
+      - name: Upload build logs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Runner-Build-Logs
+          path: build/logs/
+          if-no-files-found: warn
+          retention-days: 14
