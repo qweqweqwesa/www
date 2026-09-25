@@ -1,0 +1,21 @@
+config_version=5
+
+[application]
+config/name="Godot iOS Runner"
+config/version="1.0.0"
+run/main_scene="res://runner.tscn"
+config/features=PackedStringArray("4.6", "Mobile")
+config/icon="res://icon.png"
+
+[display]
+window/size/viewport_width=390
+window/size/viewport_height=844
+window/stretch/mode="canvas_items"
+window/handheld/orientation=1
+
+[rendering]
+textures/vram_compression/import_etc2_astc=true
+renderer/rendering_method="mobile"
+renderer/rendering_method.mobile="mobile"
+rendering_device/driver.ios="metal"
+environment/defaults/default_clear_color=Color(0.035, 0.055, 0.10, 1)
